@@ -1,16 +1,22 @@
-# Mechanistic Interpretability Exploration
+# Mechanistic Interpretability — Tarun Arora
 
-This repository serves as a collaborative space for tracking notes and explorations on topics related to mechanistic interpretability. 
+Hands-on experiments in mech interp. Running real models, 
+finding real things.
 
-## Project Description
-Mechanistic interpretability aims to understand how machine learning models make their predictions by deciphering the underlying mechanisms.
+## Findings
 
-## Structure
-- Notes on literature and findings
-- Experimentation logs
-- Discussion pages for collaboration.
+### Set-Completion Heads in Qwen1.5-1.8B
+Layer 12 attention is redundant on clean runs (7.4% ablation damage) 
+but causally necessary on corrupted runs (99.1% collapse). 
+Heads 4 and 9 implement a structure/content dissociation — 
+Head 9 tracks counting skeleton, Head 4 tracks fruit identity.
+→ Full writeup: activation_patching.md
 
-## Contribution Guidelines
-1. Fork the repository.
-2. Create a new branch for your contributions.
-3. Submit a pull request for review.
+## Notebooks
+- 0_Zero_Layer_Transformer.ipynb — transformer built from scratch
+- Attention_Mechanism.ipynb — single and multi-head attention
+- MLP.ipynb — MLP block with GELU and residual
+- Activation_Patching_.ipynb — full patching pipeline
+
+## Contact
+hi@tarunarora.de
