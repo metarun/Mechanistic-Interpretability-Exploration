@@ -8,9 +8,12 @@ finding real things.
 ### Set-Completion Heads in Qwen1.5-1.8B
 Layer 12 attention is redundant on clean runs (7.4% ablation damage) 
 but causally necessary on corrupted runs (99.1% collapse). 
+
 Heads 4 and 9 implement a structure/content dissociation — 
+
 Head 9 tracks counting skeleton, Head 4 tracks fruit identity.
-→ Full writeup: activation_patching.md
+
+→ Full writeup: [activation_patching.md](https://github.com/metarun/Mechanistic-Interpretability-Exploration/blob/main/activation_patching.md)
 
 ## Notebooks
 - 0_Zero_Layer_Transformer.ipynb — transformer built from scratch
