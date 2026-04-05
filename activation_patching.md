@@ -231,43 +231,123 @@ Direct logit attribution through W_U is the correct analysis for output-side que
 
 ---
 
-## Finding 6: Computation and output are dissociated across layers
+## Finding 6: Computation and output are dissociated — Layer 12 computes, Layers 17/19/23 write
 
-Direct logit attribution on the clean run shows that Layer 12 — the dominant 
-patching layer — contributes only +1.05 to the final answer logit. The actual 
-token-space voting happens much later: Layer 17 (+9.17), Layer 19 (+7.46), 
-and Layer 23 (+18.84) account for almost all the direct signal.
+Direct logit attribution on both clean and corrupted runs reveals a two-stage circuit.
 
-This is not a contradiction. Patching measures causal sufficiency — which layer 
-carries the set-completion computation. DLA measures direct output contribution — 
-which layer converts that computation into a token vote. Layer 12 writes a 
-structured representation of the missing item into the residual stream. Layers 
-17, 19, and 23 read it and translate it into logit space.
+**Stage 1 — Computation (Layers 0–13):**
+Layer DLA scores are nearly identical between clean and corrupted runs through
+Layer 13. The early circuit is prompt-invariant — it is gathering structure and
+content information without yet committing to an answer. Layer 12 (+1.08 clean,
++1.24 corrupted) and Layer 13 (+1.33 clean, +1.14 corrupted) show up symmetrically
+in both runs. This confirms the patching finding: Layer 12 computes the
+set-completion representation but does not directly vote for a token.
 
-Layers 20 and 21 are negative (-2.48 and -1.05) even on the clean run — 
-actively suppressing the correct answer before being overridden. The final 
-prediction is a tug-of-war, not a clean additive accumulation.
+**Stage 2 — Output (Layers 16–23):**
+Layer 16 is the first sign flip: clean +1.25, corrupted -1.59. Layer 17 is the
+decisive split: clean +13.12, corrupted -13.58 — nearly perfectly mirrored.
 
+Head DLA at the three dominant output layers:
+
+| Layer | Head | Clean DLA | Note |
+|-------|------|-----------|------|
+| 17    | 5    | +6.57     | dominant output writer |
+| 17    | 15   | +5.71     | dominant output writer |
+| 17    | 9    | +1.12     | small secondary |
+| 19    | 13   | +10.69    | single head, all others net negative |
+| 23    | 15   | +2.03     | positive |
+| 23    | 14   | -1.66     | actively suppressing correct answer |
+
+Each output layer has a different structure: L17 is a two-head collaboration,
+L19 is a single dominant head, L23 has internal competition between heads.
+
+**On the corrupted run, layers 17–22 cascade uniformly negative.** The same
+heads that write the correct answer on the clean run write the wrong answer
+on the corrupted run with equal force. They are not biased toward any token —
+they faithfully amplify whatever the Layer 12 computation produced.
+
+**The amplification question is partially answered.** Head 4 at Layer 12 writes
+a weak but correctly-directed fruit signal (~+0.14). L17 Heads 5 and 15 amplify
+this into +13 in token space. The mechanism of that amplification — what these
+heads are reading from the residual stream and why — remains the open question.
 ![Layer DLA](https://raw.githubusercontent.com/metarun/images/main/layer_dla.png)
+
+---
+## Finding 7: L17 Heads 5 and 15 implement a targeted copy mechanism
+
+Attention pattern inspection at Layer 17 on both clean and corrupted runs
+reveals the output mechanism directly.
+
+![Clean Attention Pattern](https://raw.githubusercontent.com/metarun/images/main/clean_attention_pattern.png)
+**Clean run (answer = Mango):**
+- Head 15 final token attends strongly to position 11 — Mango in the declaration
+- Head 5 final token attends to positions 9–11 — Grape/Mango area in the declaration
+
+![Corrupt Attention Pattern](https://raw.githubusercontent.com/metarun/images/main/corrupt_Attention_pattern.png)
+**Corrupted run (answer = Orange):**
+- Head 15 final token attends strongly to position 7 — Orange in the declaration
+- Head 5 final token attends to positions 7–9 — Orange area in the declaration
+
+The declaration section is identical across both prompts. The fruit list never
+changes position. Yet the attention of both heads shifts to a different declaration
+token depending on which fruit is absent from the counted list.
+
+These heads are not doing abstract computation. Their attention pattern encodes
+the set-completion answer directly — they attend to whichever declared fruit has
+not appeared in the counting sequence, then copy its token representation into
+logit space. This is why their DLA scores are large (+6.57 and +5.71): a targeted
+copy of a concrete token produces a strong, clean logit signal.
+
+**The circuit is now fully described:**
+
+| Component | Role |
+|-----------|------|
+| L12 H9 | Structure-tracker — attends to Man and count digits, establishes counting skeleton |
+| L12 H4 | Content-tracker — attends to counted fruit positions, tracks what has appeared |
+| L17 H5+H15 | Copy mechanism — attend to missing fruit in declaration, write it to output |
+
+L12 computes the absence. L17 resolves it to a token. The two stages are
+mechanistically distinct and operate on different parts of the prompt.
+
+**What remains open:** How does L17 know which declaration token to attend to?
+Its attention pattern already encodes the answer — meaning it is reading
+something from the residual stream at that point that tells it where to look.
+That intermediate representation, written by L12 and read by L17, is the
+remaining unknown in this circuit.
 
 ---
 
 
 ## Open Questions
 
-**What amplifies Head 4's signal?** Head 4 writes a correctly-directed but weak
-fruit contribution (max +0.14). The final logit difference is 9.35. Layers 13 and
-14 account for the amplification — identifying what they are doing to Head 4's
-residual stream write is the next mechanical question.
+**What does the residual stream at L17 encode that tells H5+H15 where to attend?**
+Head 4 at Layer 12 writes a weak but correctly-directed fruit signal (~+0.14).
+Layer 17 Heads 5 and 15 implement a copy mechanism — they attend to the missing
+fruit in the declaration and write it to output. But their attention pattern
+already encodes the answer, meaning they are reading something from the residual
+stream that tells them which declaration token to attend to. What that intermediate
+representation looks like — and how L12's weak signal gets transformed into a
+precise attention target by L17 — is the remaining unknown in this circuit.
 
-**Is the redundancy general or specific to this task?** The clean-run robustness
-might reflect that set-completion is trivially easy for this model on this prompt,
-not that set-completion circuits are generally redundant.
+**Is the redundancy general or specific to this task?**
+On the clean run, ablating all of Layer 12 attention causes only 7.4% damage.
+The model has redundant paths to the correct answer when the input is intact.
+Whether this reflects a general property of how set-completion circuits are
+organized, or simply that this particular prompt is easy enough that many
+independent paths converge on the same answer, remains untested. Running the
+same ablation on harder or more ambiguous prompts would distinguish these.
 
-**Relation to IOI?** The multi-head compositional structure — one head tracking
-structure, another tracking content — looks superficially similar to the
-name-mover / S-inhibition head division in GPT-2's indirect object identification
-circuit. I have not done the analysis to compare mechanisms.
+**How does this circuit compare to IOI in GPT-2?**
+The structure is now concrete enough to compare directly. This circuit has:
+a structure-tracker (L12 H9), a content-tracker (L12 H4), and copy heads
+(L17 H5+H15) that attend to the correct token and write it to output. In GPT-2's
+indirect object identification circuit, name-mover heads perform the analogous
+copy operation — attending to the correct name and writing it to the output
+position. The parallel is specific enough to be worth a direct mechanistic
+comparison: do L17 H5+H15 implement the same QK and OV circuit structure as
+GPT-2 name-mover heads? That comparison would either strengthen the claim that
+copy heads are a general transformer primitive or reveal important differences
+in how the two models solve structurally similar tasks.
 
 ---
 
