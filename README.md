@@ -16,10 +16,10 @@ Head 9 tracks counting skeleton, Head 4 tracks fruit identity.
 → Full writeup: [activation_patching.md](https://github.com/metarun/Mechanistic-Interpretability-Exploration/blob/main/activation_patching.md)
 
 ## Notebooks
-- 0_Zero_Layer_Transformer.ipynb — transformer built from scratch
-- Attention_Mechanism.ipynb — single and multi-head attention
-- MLP.ipynb — MLP block with GELU and residual
-- Activation_Patching_.ipynb — full patching pipeline
+- 0_Zero_Layer_Transformer.ipynb — transformer built from scratch [View Notebook (nbviewer)](https://nbviewer.org/github/metarun/Mechanistic-Interpretability-Exploration/blob/main/0_Zero_Layer_Transformer.ipynb)
+- Attention_Mechanism.ipynb — single and multi-head attention [View Notebook (nbviewer)](https://nbviewer.org/github/metarun/Mechanistic-Interpretability-Exploration/blob/main/Attention_Mechanism.ipynb)
+- MLP.ipynb — MLP block with GELU and residual [View Notebook (nbviewer)](https://nbviewer.org/github/metarun/Mechanistic-Interpretability-Exploration/blob/main/MLP.ipynb)
+- Activation_Patching_.ipynb — full patching pipeline [View Notebook (nbviewer)](https://nbviewer.org/github/metarun/Mechanistic-Interpretability-Exploration/blob/main/Activation_Patching_.ipynb)
 
 ## Contact
 hi@tarunarora.de
