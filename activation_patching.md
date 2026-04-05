@@ -231,6 +231,28 @@ Direct logit attribution through W_U is the correct analysis for output-side que
 
 ---
 
+## Finding 6: Computation and output are dissociated across layers
+
+Direct logit attribution on the clean run shows that Layer 12 — the dominant 
+patching layer — contributes only +1.05 to the final answer logit. The actual 
+token-space voting happens much later: Layer 17 (+9.17), Layer 19 (+7.46), 
+and Layer 23 (+18.84) account for almost all the direct signal.
+
+This is not a contradiction. Patching measures causal sufficiency — which layer 
+carries the set-completion computation. DLA measures direct output contribution — 
+which layer converts that computation into a token vote. Layer 12 writes a 
+structured representation of the missing item into the residual stream. Layers 
+17, 19, and 23 read it and translate it into logit space.
+
+Layers 20 and 21 are negative (-2.48 and -1.05) even on the clean run — 
+actively suppressing the correct answer before being overridden. The final 
+prediction is a tug-of-war, not a clean additive accumulation.
+
+![Layer DLA](https://raw.githubusercontent.com/metarun/images/main/layer_dla.png)
+
+---
+
+
 ## Open Questions
 
 **What amplifies Head 4's signal?** Head 4 writes a correctly-directed but weak
