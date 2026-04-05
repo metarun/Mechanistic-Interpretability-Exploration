@@ -100,7 +100,7 @@ prompt should produce similar "recovery," confirming the signal is noise.
 
 Head sweep at Layer 12:
 
-![Head patching heatmap](Head%20patching%20heatmap.png)
+![Head patching heatmap](https://raw.githubusercontent.com/metarun/images/main/Head_patching_heatmap.png)
 
 Individual head recoveries at Layer 12:
 - Head 4: 17.2%
@@ -131,7 +131,7 @@ Attention pattern inspection from the final token position reveals that Heads 4 
 | Mango / pos 18 | 19% |
 | Peach / pos 15 | 6% |
 
-![Head 4 attention weights](Head4_attention_weights.png)
+![Head4 attention weights](https://raw.githubusercontent.com/metarun/images/main/Head4_attention_weights.png)
 Head 4 distributes attention across the fruit token positions — the actual named
 items in the list. It is doing set-membership work: gathering evidence about which
 fruits have appeared.
@@ -144,7 +144,7 @@ fruits have appeared.
 | digit `1` at pos 14, 17, 20 | ~39% combined |
 | Fruit tokens | ~0% |
 
-![Head 9 attention weights](Head9_attention_weights.png)
+![Head9 attention weights](https://raw.githubusercontent.com/metarun/images/main/Head9_attention_weights.png)
 Head 9 completely ignores fruit identity. It attends to the structural skeleton of
 the sequence — the subject noun and the repeated count digits.
 
@@ -160,7 +160,7 @@ established. Neither head is sufficient alone.
 
 This is the most interesting result.
 
-![Ablation comparison table](Ablation%20comparison.png)
+![Ablation comparison](https://raw.githubusercontent.com/metarun/images/main/Ablation_comparison.png)
 
 <!-- | Intervention | Run | Damage | % of baseline |
 | --- | --- | --- | --- |
@@ -252,8 +252,8 @@ circuit. I have not done the analysis to compare mechanisms.
 ## Code
 
 Full pipeline (TransformerLens): residual stream patching, component patching, head
-sweeps, ablation, attention visualization, direct logit attribution. Happy to share
-the notebook on request.
+sweeps, ablation, attention visualization, direct logit attribution. 
+[View Notebook (nbviewer)](https://nbviewer.org/github/metarun/Mechanistic-Interpretability-Exploration/blob/main/Activation_Patching_.ipynb)
 
 ---
 
