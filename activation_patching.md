@@ -75,7 +75,8 @@ recovery = (patched_diff - baseline_corrupted) / full_range
 
 Residual stream patching at the final token position across all 24 layers:
 
-![Layer × component recovery table](Layer%20×%20component%20recovery%20table.png)
+![Layer × component recovery table](https://raw.githubusercontent.com/metarun/images/main/Layer_%C3%97_component_recovery_table.png)
+
 
 Recovery is near zero through Layer 11. Layer 12 produces a sharp jump to 97.1%
 total — 79.9% from attention alone, 17.2% from MLP. Layers 13 and 14 show
